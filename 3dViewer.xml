@@ -288,7 +288,7 @@ Online.updateLogonToken(1647934057339, '0$11f5fa53-b2dc-433a-baa4-9dc956d69c3a$A
                                             resolve();
                                         });
                                     } else {
-                                        var imgSrc = rootUrl + '/works/' + works.UserID + '/' + works.FileID + (isFaceB ? '_b' : '') + '.jpg?t=' + _.camelCase(works.ModifyDate);
+                                        var imgSrc = "./img.jpg";
                                         Cm.xmlReq({ src: imgSrc }, function (r) {
                                             var img = Cm.genImageFromXmlReq(r);
                                             img.onload = function () {
