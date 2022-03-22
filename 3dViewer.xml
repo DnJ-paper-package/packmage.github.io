@@ -346,7 +346,7 @@ Online.updateLogonToken(1647934057339, '0$11f5fa53-b2dc-433a-baa4-9dc956d69c3a$A
     var $win = $(Win);
     var colorLoaded = 0;
     //x.FileID,x.BoxPms,x.Name,x.Status,x.UserID
-    var works = Win.works = { "FileID": window.location.pathname.replaceAll('\/',''), "Host": "online.packmage.com", "Name": "pub1", "UserID": "3feee5d0-cb06-43ce-8cd6-3480f8eb54a0", "BoxID": "0941", "BoxPms": "L=300,D=100,CAL=2,L1=64,L2=24,L3=31,L4=20,L5=28,L6=15,CHOOSE=3,INNER=1.3,OUTER=0.7,IND=100,INL=300", "Status": 1, "Json": "{\"visitePwd\":\"\"}", "Score": 0.0, "ModifyDate": "2022-03-21 20:55:50", "Deleted": 0 };
+    var works = Win.works = { "FileID": null, "Host": "online.packmage.com", "Name": "pub1", "UserID": "3feee5d0-cb06-43ce-8cd6-3480f8eb54a0", "BoxID": "0941", "BoxPms": "L=300,D=100,CAL=2,L1=64,L2=24,L3=31,L4=20,L5=28,L6=15,CHOOSE=3,INNER=1.3,OUTER=0.7,IND=100,INL=300", "Status": 1, "Json": "{\"visitePwd\":\"\"}", "Score": 0.0, "ModifyDate": "2022-03-21 20:55:50", "Deleted": 0 };
 
     //窗口大小改变
     var fn = function () {
