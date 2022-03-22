@@ -1,39 +1,470 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-        <meta name="apple-mobile-web-app-capable" content="yes">
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:og="http://ogp.me/ns#"
+      xmlns:fb="https://www.facebook.com/2008/fbml">
 <head>
+    <meta name="viewport" content="width=device-width, height=device-height, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>自适应高宽满屏显示无滚动条</title>
+
+
+    <title>Works: pub1 | Jingwei Packmage</title>
+    <script src="/diy/ref/jquery-2.1.4.min.js?v=0319032213"></script>
+<script src="/diy/ref/lodash-4.17.4.min.js?v=0319032234"></script>
+<script src="/diy/worktable/cm.min.js?v=0319033007"></script>
+<script src="/diy/ref/vue/vue-2.5.13.min.js?v=0319032954"></script>
+<script src="/diy/ref/vue/polyfill-6.23.0.min.js?v=0319032954"></script>
+<link href="/diy/ref/vue/iview-4.0.2.min.css?v=0319032948" rel="stylesheet" />
+<script src="/diy/ref/vue/iview-4.0.2.min.js?v=0319032949"></script>
+<script src="/diy/ref/vue/en-us-4.0.2.min.js?v=0319032938"></script>
+<script src="/diy/online/art.min.js?v=0319031914"></script>
+<link href="/diy/ref/iconfont/css/font-awesome.min.css?v=0319032148" rel="stylesheet" />
+<script src="/diy/ref/vue/vue-slider-component.umd-7.0.1.min.js?v=0319033000"></script>
+<link href="/diy/ref/vue/vue-slider-component-default-7.0.1.min.css?v=0319032959" rel="stylesheet" />
+<script src="/diy/worktable/tween-16.3.4.min.js?v=0319033014"></script>
+<script src="/diy/ref/gl/200616/three-110.min.js?v=0319032112"></script>
+<script src="/diy/ref/gl/200616/texgen.min.js?v=0319032110"></script>
+<script src="/diy/ref/gl/200616/trackballcontrols.min.js?v=0319032113"></script>
+<script src="/diy/ref/gl/200616/for3d.min.js?v=0319032108"></script>
+<script src="/diy/ref/gl/200616/lin3d.min.js?v=0319032110"></script>
+<script src="/diy/ref/gl/200616/gl-vignette-background.min.js?v=0319032109"></script>
+<script src="/diy/ref/parser.min.js?v=0319032245"></script>
+<script src="/diy/ref/pdfjs/pdf-2.0.550.min.js?v=0319032252"></script>
+<script src="/diy/ref/farbtastic/farbtastic.min.js?v=0319032026"></script>
+<link href="/diy/ref/farbtastic/farbtastic.min.css?v=0319032026" rel="stylesheet" />
+<script src="/diy/online/onlinepost.min.js?v=0217070258"></script>
+    <style>
+        body {
+            overflow: hidden;
+            touch-action: none; /*防止手机端一些情况下的preventDefault执行失败：https: //blog.csdn.net/weixin_42532454/article/details/84869900　*/
+        }
+
+        .ctrl {
+            position: absolute;
+            /*top: calc(100vh - 45px);*/
+            width: 100%;
+            height: 45px;
+            z-index: 9;
+        }
+
+        .slideDown {
+            text-align: center;
+            height: 32px;
+            width: 380px;
+            max-width: calc(100vw - 10px);
+            background: #eee;
+            border-radius: 20px;
+            padding: 2px 0px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            margin: 0 auto;
+        }
+
+        .cvs {
+            width: 100%;
+            height: 100%;
+        }
+
+        #cvsEffect {
+            /*background-color: indianred;*/
+            position: absolute;
+            z-index: -1;
+        }
+
+        i[data-simple-color] {
+            outline: none; /*去掉只击后多余的框框*/
+            border: 1px solid gray;
+            background-color: #eee;
+            color: #eee;
+            margin: 2px;
+            cursor: pointer;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+    </style>
 </head>
-<style type="text/css">
-    * {
-        margin: 0;
-        padding: 0;
-    }
-
-    html {
-        padding: 0;
-        /* firefox for IE 7.0 */
-        _padding: 100px 0 0 200px;
-        /*IE 6.0*/
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-    }
-
-    body {
-        height: 100%;
-        overflow: hidden;
-    }
-</style>
-
 <body>
-<iframe src ="http://jingwei.packmage.com/online/worksshow?id=2022032120553710688710" width='100%' height='100%' frameborder='0' name="_blank" id="_blank">
-  <p>Your browser does not support iframes.</p>
-</iframe>
-</body>
+    <div>
+        <canvas id="cvsEffect" class="cvs"></canvas>
+        <canvas id="cvs3D" class="cvs"></canvas>
+        <div id="divCtrl" class="ctrl" v-cloak>
+            <div class="slideDown">
+                <i-button v-bind:class="{active:isPerspectiveMode}" type="default" size="small" shape="circle" v-on:click="isPerspectiveMode= +!isPerspectiveMode">
+                    <i class="fa fa-codepen fa-lg"></i>
+                </i-button>
+                <i-button v-bind:class="{active:autoFold}" type="default" size="small" shape="circle" v-on:click="autoFold= +!autoFold">
+                    <i v-bind:class="autoFold?'fa fa-pause':'fa fa-play'"></i>
+                </i-button>
+                <vue-slider v-model="fold" v-on:drag-start="autoFold=0" tooltip="none" v-bind:min="0" v-bind:max="1" v-bind:width="100" v-bind:duration="0" v-bind:interval=".001"
+                            v-bind:dot-size="22" style="margin-left:15px;margin-right:15px;margin-bottom:-10px;display:inline-block;">
+                </vue-slider>
 
-</html><br />
-<center>如不能显示效果，请按Ctrl+F5刷新本页</center>
+                <i-button v-bind:class="{active:autoRotate}" type="default" size="small" shape="circle" v-on:click="autoRotate= +!autoRotate">
+                    <i class="fa fa-refresh fa-lg" v-bind:class="{'fa-spin':autoRotate}"></i>
+                </i-button>
+                <i-button type="default" size="small" shape="circle" v-on:click="resetView()"><icon custom="fa fa-angle-double-up" size="18"></icon></i-button>
+                <i-button v-bind:class="{active: _.get(Win, 'effect.isRunning')}" type="default" size="small" shape="circle" v-on:click="toggleEffect('HuaBan')">
+                    <i class="fa fa-heart-o fa-lg"></i>
+                </i-button>
+                
+                <button id="btnBgColor2" @click="colorPicker(2)" size="small"><i class="fa fa-stop" style="border:1px solid gray;background-color:#eee;color:#eee"></i></button>
+            </div>
+            <modal v-model="showColorPicker" v-bind:mask-closable="false" draggable scrollable footer-hide title="Background color" width="288">
+                <i-input v-model="editColor" style="width:150px;"></i-input>
+                <Checkbox v-model="isGradient" style="margin-left:10px;">Gradient</Checkbox>
+                <div id="divColorpicker">
+                </div>
+            </modal>
+        </div>
+    </div>
+
+    
+    <script>window.$Lan = { code: 'lan', data: {}  };</script>
+        <script>
+            window.$Lan.data = {
+                '请勿重复执行！': 'Do not repeat the execution！',
+                '正在执行，请稍候．．．': 'Please Wait...',
+            };
+            
+            iview.lang('en-US');
+        </script>
+        <script>
+        var rootUrl = 'https://packmage.blob.core.windows.net/cad';
+        function setBg(innerColor, outerColor) {
+            innerColor = innerColor || '#fff'; //Cm.colorRgbSub
+            outerColor = outerColor || '#000'; //Cm.colorRgbSub
+            var arr1 = Cm.colorRgbArray(innerColor, 255);
+            var arr2 = Cm.colorRgbArray(outerColor, 255);
+            gl = document.getElementById('cvsEffect').getContext('webgl');
+            var background = new createBackground(gl);
+            var cvs = gl.canvas;
+            cvs.width = cvs.clientWidth;
+            cvs.height = cvs.clientHeight;
+            var width = gl.drawingBufferWidth;
+            var height = gl.drawingBufferHeight;
+
+            gl.viewport(0, 0, width, height)
+            gl.clearColor(0, 0, 0, 1)
+            gl.clear(gl.COLOR_BUFFER_BIT)
+            gl.disable(gl.DEPTH_TEST)
+            gl.disable(gl.CULL_FACE)
+            background.style({
+                scale: [1, 0.7],
+                aspect: 1.1507246376811595,
+                color1: arr1,//[255 / 255, 255 / 266, 255 / 255],
+                color2: arr2,//[50 / 255, 50 / 255, 50 / 255],
+                smoothing: [-0.2, 1.0],
+                noiseAlpha: 0.05,
+                coloredNoise: true,
+                offset: [0, 0]
+            })
+            background.draw();
+        }
+        //设置B面纸材
+        function setPaperB(opt) {
+            if (!_.get(opt, 'paper')) return;
+            var ctx = D3.factoryOfTextureAB.canvasA.getContext('2d');
+            _.extend(opt, {
+                "ctx": ctx,
+                "face": "B",
+                //"paper": "niu",
+                //"color":"#ccc"
+            });
+            if (_.get(opt, 'paper') == 'ka') {
+                ART.drawColorBg({ ctx: ctx, bgColor: opt.color, alpha: 1 });
+                D3.changeImageB(ctx.canvas, 1);
+            }
+            else {
+                ART.drawImageBg(opt).then(function () {
+                    D3.changeImageB(ctx.canvas, 1);
+                })
+            }
+
+        }
+
+             Online.updateLogonToken(1647934057339,'0$11f5fa53-b2dc-433a-baa4-9dc956d69c3a$AASxBRgCqSNCo/cFn3nP6G3KoMF9Op36EInkSVmIPDb94eXBJmrbF33ILnT8MMrJnQ==');
+        $(function () {
+
+            var d = new Cm.viewDialog(new Vue);
+            var colorPicker = function (n) {
+                var simpleColors = ['#ffffff', '#000000', '#261e47', '#9e7a7a', '#d0104c', '#e16b8c', '#64363c', '#eea9a9', '#b19693', '#ab3b3a', '#096148', '#24936e', '#99374e', '#b5495b', '#df7251', '#006284', '#33a6b8'];
+                var that = this;
+                that.n = n;
+                that.showColorPicker = true;
+                var setColor = function (v) {
+                    var $c = $('#btnBgColor' + that.n + ' i');
+                    that['color' + that.n] = v;
+                    $c.css("color", v);
+                    $c.css("background-color", v);
+                }
+                that.$nextTick(function () {
+                    if (colorLoaded) return;
+                    colorLoaded = 1;
+                    $color = $.farbtastic('#divColorpicker');
+                    $color.linkTo(setColor);
+                    //添加色块
+                    var $parent = $('#divColorpicker');
+                    $.each(simpleColors, function (idx, c) {
+                        var $new = $('<i data-simple-color class="fa fa-stop fa-2x">');
+                        $parent.after($new);
+                        $parent = $new
+                        $new.css("color", simpleColors[idx]);
+                        $new.css("background-color", simpleColors[idx]);
+                        $new.click(function (e) {
+                            setColor(simpleColors[idx]);
+                        });
+                    });
+                });
+            };
+            var p = new Cm.MyPost({ lan: 'en' } );
+
+            var toggleEffect = function (id) {
+                var that = D3.vue;
+                if (Win.effect) {
+                    if (id == _.get(Win, 'effect.id')) {
+                        if (_.get(Win, 'effect.isRunning')) {
+                            _.invoke(Win, 'effect.pause');
+                            setTimeout(function () { setBg(that.color1, that.color2) }, 100);
+                        }
+                        else _.invoke(Win, 'effect.run');
+                        return;
+                    }
+                    _.invoke(Win, 'effect.pause');
+                }
+                if (d.isLoading()) return;
+                p.Post({
+                    url: '/Online/GetEffect.json',
+                    data: { id: id, token: 'Ozk7Ozk6Ozg7OTw8Oj44OT8xMT44OQ==', fileID: works.FileID },
+                    success: function (res) {
+                        _.invoke(Win, 'effect.pause');//暂停当前
+                        var cmd = _.get(res, 'Data.main');
+                        if (cmd) Win.effect = eval(cmd);
+                        _.set(Win, 'effect.id', id);
+                        _.invoke(Win, 'effect.init', '#cvsEffect', _.get(res, 'Data'));
+                        _.invoke(Win, 'effect.run');
+                        d.closeMsg();//关闭‘正在执行’
+                    },//success
+                    error: d.closeMsg//关闭‘正在执行’
+                });
+            }
+
+            function loadD3() {
+                if (d.isLoading()) return;
+                var boxData = {};
+                //  var data = ;
+                var D3 = _.get(Win, 'D3');
+                var cb = function (res) {
+                    //var data = res.Data;
+                    boxData = res.Data;
+                    D3.load({
+                        boxID: works.BoxID,
+                        boxPms: works.BoxPms,
+                        boxData: boxData,//盒型的数据
+                        currentTexture: null,
+                    }, function () {
+                        var outSize = [];
+                        // setTimeout(function () { D3.control.autoFold = 1; }, 1000);//1秒后自动折叠// works.Json && setPaperB(JSON.parse(works.Json))
+                        var opt = works.Json ? JSON.parse(works.Json) : {};
+                        var calColor = _.get(opt, 'calColor');
+                        var calName = _.get(opt, 'calName');
+                        if (calColor || calName) D3.curModel.mesh.changeCalTexture({ name: calName, color: calColor });
+                        var isAgainstGrain = _.result(opt, 'isAgainstGrain', 0);//是否非顺纹（即是否逆纹）
+                     //   D3.curModel.mesh.changeCalUvByGrain(+!isAgainstGrain);//保持纹路
+                        ART.isAgainstGrain = isAgainstGrain;
+                        D3.$isAgainstGrain = isAgainstGrain;
+                        var updateMat = function (isFaceB) {
+                            return new Promise(function (resolve, reject) {
+                                _.extend(opt, { "isFaceB": isFaceB });
+                                ART.loadImageBg(_.extend({ isFaceB: isFaceB }, opt), function (image) {
+                                    D3.changeMatCanvas({
+                                        isFaceB: isFaceB,
+                                        onDraw: function (cvs) {
+                                            if (isFaceB && '0' == "0") {
+                                                cvs.width = outSize[0];
+                                                cvs.height = outSize[1];
+                                                ART.drawMatBackground(cvs, _.extend({ isFaceB: isFaceB },image, opt), function () {
+                                                    resolve();
+                                                });
+                                            } else {
+                                                var imgSrc = rootUrl + '/works/' + works.UserID + '/' + works.FileID + (isFaceB ? '_b' : '') + '.jpg?t=' + _.camelCase(works.ModifyDate);
+                                                Cm.xmlReq({ src: imgSrc }, function (r) {
+                                                    var img = Cm.genImageFromXmlReq(r);
+                                                    img.onload = function () {
+                                                        cvs.width = img.width;
+                                                        cvs.height = img.height;
+                                                        outSize[0] = img.width;
+                                                        outSize[1] = img.height;
+
+                                                        ART.drawMatBackground(cvs, _.extend({ isFaceB: isFaceB },image, opt), function () {
+                                                            var ctx = cvs.getContext("2d");
+                                                            if (isFaceB) {
+                                                                //ctx.transform(-1, 0, 0, 1, cvs.width, 0);
+                                                                //cvs.$flipX = 1;//自定义属性 标注材质是否翻转绘制
+                                                            }
+                                                            ctx.drawImage(img, 0, 0);
+                                                            D3.curModel.mesh.mats[isFaceB?1:0].map.needsUpdate = true
+                                                            //if (isFaceB) {
+                                                            //    D3.curModel.mesh.objB.material.map.needsUpdate = true
+                                                            //} else {
+                                                            //    D3.curModel.mesh.objA.material.map.needsUpdate = true
+                                                            //}
+                                                            resolve();
+                                                        });
+                                                    }
+                                                });
+                                            }
+
+
+                                        }
+                                    });
+                                });
+                            });
+                        }
+                        updateMat(0)
+                            .then(function () { return updateMat(1) })
+                            .then(function () {
+                                D3.curModel.mesh.changeCalUvByGrain(isAgainstGrain);//改3D纸纹的顺逆
+                                D3.control.autoFold = 1;
+                                d.closeMsg();//关闭‘正在执行’
+                            });
+                    });
+                    D3.vue.$nextTick(setBg);
+                }
+                p.Post({
+                    url: '/Online/LoadWorkShow.json',
+                    data: { fileID: works.FileID, token: Online.getLogonToken() },
+                    success: cb,//success
+                    error: d.closeMsg//关闭‘正在执行’
+                });
+
+            }
+
+
+            var Win = window;
+            var $win = $(Win);
+            var colorLoaded = 0;
+            //x.FileID,x.BoxPms,x.Name,x.Status,x.UserID
+            var works = Win.works = {"FileID":"2022032120553710688710","Host":"online.packmage.com","Name":"pub1","UserID":"3feee5d0-cb06-43ce-8cd6-3480f8eb54a0","BoxID":"0941","BoxPms":"L=300,D=100,CAL=2,L1=64,L2=24,L3=31,L4=20,L5=28,L6=15,CHOOSE=3,INNER=1.3,OUTER=0.7,IND=100,INL=300","Status":1,"Json":"{\"visitePwd\":\"\"}","Score":0.0,"ModifyDate":"2022-03-21 20:55:50","Deleted":0};
+
+            //窗口大小改变
+            var fn = function () {
+                var w = $win.width();
+                var h = $win.height();
+                cvs3D.width = cvsEffect.width = w - 10;
+                cvs3D.height = cvsEffect.height = h - 10;
+                D3 && D3.isLoaded && D3.changeSize();//3D插件改变尺寸
+                _.invoke(Win, 'effect.resize');
+                $("#divCtrl").css("top", (h - 52) + "px");//工具条的位置
+            };
+
+            var deFn = _.debounce(fn, 50);
+            $(Win).resize(deFn);//窗口尺寸改变
+
+            var initD3 = !parseInt('0');
+            if (!initD3) {
+                //密碼框
+                var shareVue = new Vue({
+                    el: "#shareBox",
+                    data: function () {
+                        return {
+                            showTip: true,
+                            showPassword: true,
+                            password: ""
+                        }
+                    },
+                    methods: {
+                        verifyVisitePwd: function () {
+                            var that = this;
+                            var obj = {
+                                id: "2022032120553710688710",
+                                pwd: that.password
+                            };
+                            if (_.trim(that.password) == "") {
+                                that.$Message.error("密码不能为空！");
+                                return;
+                            }
+                            var callback = function () {
+                                that.showPassword = false;
+                                that.password = "";
+                                that.showTip = false;
+                                fn();
+                                loadD3();
+                            }
+                            if (d.isLoading()) return;
+                            p.Post({
+                                url: '/Online/VerifyVisitePwd',
+                                data: obj,
+                                success: function (res) {
+                                    d.closeMsg(res);
+                                    callback && callback(res);
+                                },//关闭‘正在执行’
+                                error: function (res) {
+                                    d.closeMsg(res);
+                                    that.showPassword = true;
+
+                                },//关闭‘正在执行’
+                            });
+
+                        }
+                    }
+                });
+            }
+
+            //混入vue
+            var mix = {
+                el: '#divCtrl',
+                data: function () {
+                    return {
+                        n: 1,
+                        color1: '#fff',
+                        color2: '#000',
+                        showColorPicker: false,
+                        isGradient:true,//是否渐变
+                    }
+                },
+                components: { VueSlider: Win['vue-slider-component'] },
+                computed: {
+                    editColor: {
+                        get: function () { return this['color' + this.n]; },
+                        set: function (v) { this['color' + this.n] = v; }
+                    }
+                },
+                watch: {
+                    color1: function (v) { setBg(this.color1, this.color2); },
+                    color2: function (v) {
+                        if (this.isGradient) this.color1 = '#fff';
+                        else this.color1 = this.color2;
+                        setBg(this.color1, this.color2);
+                    },
+                    isGradient: function (v) {
+                        if (v) this.color1 = '#fff';
+                        else this.color1 = this.color2;
+                    },
+                },
+                methods: {
+                    //颜色选取
+                    colorPicker: colorPicker,
+                    toggleEffect: toggleEffect,
+                }
+            };
+
+
+            Cm.vueUse("D3", D3);//组件
+            Cm.vueUse("Win", Win);//组件
+            D3 && D3.init({
+                el_3d: '#cvs3D',//放置3D的DIV
+                el_vue: '#divCtrl',//VUE绑定的DOM
+                el_vue_mixins: [mix],//VUE绑定的混入接口
+            });
+            if (initD3) {
+                fn();//先执行一次，初始化3D容器的尺寸
+                loadD3();
+            }
+
+        });
+        </script>
+
+</body>
+</html>
